@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gerenciamento de Estoque</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema de Gerenciamento de Estoque</h1>
+            <nav>
+                <button onclick="showPage('gerenciamento')" class="nav-btn active">Gerenciamento</button>
+                <button onclick="showPage('cadastro-produto')" class="nav-btn">Cadastrar Produto</button>
+                <button onclick="showPage('movimentacao')" class="nav-btn">Movimentação</button>
+            </nav>
+        </header>
+
+        <!-- Página de Gerenciamento de Estoque -->
+        <div id="gerenciamento" class="page active">
+            <div class="page-header">
+                <h2>Gerenciamento de Estoque</h2>
+                <div class="filters">
+                    <select id="filtroCategoria" onchange="filtrarPorCategoria()">
+                        <option value="">Todas as categorias</option>
+                    </select>
+                    <button onclick="carregarProdutos()" class="btn-refresh">Atualizar</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table id="tabelaProdutos">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Preço de Custo</th>
+                            <th>Preço de Venda</th>
+                            <th>Quantidade</th>
+                            <th>Categoria</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoTabela">
+                        <!-- Produtos serão carregados aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Página de Cadastro de Produto -->
+        <div id="cadastro-produto" class="page">
+            <div class="page-header">
+                <h2 id="tituloCadastro">Cadastrar Produto</h2>
+            </div>
+            
+            <form id="formProduto" class="form-container">
+                <input type="hidden" id="produtoId">
+                
+                <div class="form-group">
+                    <label for="nome">Nome do Produto:</label>
+                    <input type="text" id="nome" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="descricao">Descrição:</label>
+                    <textarea id="descricao" required></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="precoCusto">Preço de Custo:</label>
+                        <input type="number" id="precoCusto" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="precoVenda">Preço de Venda:</label>
+                        <input type="number" id="precoVenda" step="0.01" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="quantidadeEstoque">Quantidade em Estoque:</label>
+                        <input type="number" id="quantidadeEstoque" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="categoria">Categoria:</label>
+                        <select id="categoria" required>
+                            <option value="" disabled selected>Selecione uma categoria</option>
+                            <option value="Eletrônicos">Eletrônicos</option>
+                            <option value="Informática">Informática</option>
+                            <option value="Acessórios">Acessórios</option>
+                            <option value="Smartphones">Smartphones</option>
+                            <option value="Games">Games</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Salvar Produto</button>
+                    <button type="button" onclick="limparFormulario()" class="btn-secondary">Limpar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Página de Movimentação de Estoque -->
+        <div id="movimentacao" class="page">
+            <div class="page-header">
+                <h2>Movimentação de Estoque</h2>
+            </div>
+            
+            <form id="formMovimentacao" class="form-container">
+                <div class="form-group">
+                    <label for="produtoMovimentacao">Produto:</label>
+                    <select id="produtoMovimentacao" required>
+                        <option value="">Selecione um produto</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tipoMovimentacao">Tipo de Movimentação:</label>
+                        <select id="tipoMovimentacao" required>
+                            <option value="">Selecione o tipo</option>
+                            <option value="entrada">Entrada</option>
+                            <option value="saida">Saída</option>
+                        </select>
+                    </div> 
+                                        
+                    <div class="form-group">
+                        <label for="quantidadeMovimentacao">Quantidade:</label>
+                        <input type="number" id="quantidadeMovimentacao" required>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Registrar Movimentação</button>
+                </div>
+            </form>
+            
+            <div class="movimentacoes-container">
+                <h3>Últimas Movimentações</h3>
+                <div id="listaMovimentacoes">
+                    <!-- Movimentações serão carregadas aqui -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div id="modalConfirmacao" class="modal">
+        <div class="modal-content">
+            <h3>Confirmar Exclusão</h3>
+            <p>Tem certeza que deseja excluir este produto?</p>
+            <div class="modal-actions">
+                <button onclick="confirmarExclusao()" class="btn-danger">Confirmar</button>
+                <button onclick="fecharModal()" class="btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Mensagem -->
+    <div id="modalMensagem" class="modal">
+        <div class="modal-content">
+            <h3 id="tituloMensagem">Mensagem</h3>
+            <p id="textoMensagem"></p>
+            <div class="modal-actions">
+                <button onclick="fecharModalMensagem()" class="btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
